@@ -7,12 +7,14 @@ pip install -e .
 cd ../
 
 PIP VERSION DOES NOT WORK, must be built from source, use commands above
+Also use GitHub link for library documentation
 """
 import spacy
 import re
 
 nlp = spacy.load("en_core_web_sm") #install spacy, python(3) -m spacy download en_core_web_sm
 neuralcoref.add_to_pipe(nlp, greedyness = 0.55) #greedyness somewhat arbitrary, preformed best for the examples
+#When greedyness is put higher, Howard and Tony often become a single reference
 queries = [
     "Though <its> primary duty is to automate Stark’s Malibu estate",
     "the lifelike program fulfills many other needs for Stark, like being an information source for <him>, a diagnostic tool",
@@ -30,8 +32,8 @@ def resolve(doc, parsed_query):
     match = False
     for i in range(len(doc)):
         j = 0
-        #looking for query 
         while(doc[i+j].text == parsed_query[j].text):
+            #looking for matching query 
             if(j == len(parsed_query) - 1):
                 match = True
                 break
@@ -44,6 +46,7 @@ def resolve(doc, parsed_query):
 with open('test_text','r') as text_file:
     text = text_file.read()
     doc = nlp(text.replace('\n', ' '))
+    #all coreference clusters available at doc._.corefclusters
     for query in queries:
         match = re.search(r"\<..*>", query)
         word = match.group(0)[1:-1]
@@ -53,7 +56,9 @@ with open('test_text','r') as text_file:
         print("INPUT:", query)
         print("Output:", coreference)
         print("The <{0:s}> in the input refers to <{1:s}> entity".format(word, coreference.text))
-    
+    #references not exactly the same
+    #the NER component did not match the examples
+    #similar entities are provided however
 
 
     
